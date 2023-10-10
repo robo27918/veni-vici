@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import APIForm from './components/APIForm';
 //TODO #1- make an api call to the harvard api
 // and display the respone via a console.log
 
@@ -18,6 +18,10 @@ function App() {
 
     }
   );
+  const [currentImg,setCurrentImg] = useState(null);
+  const[techniqueButton, setCurrentTechButt] = useState('')
+  const [heightButton, setCurrentHeightButt] = useState('');
+  const[widthButton, setCurrentWidthButt] = useState('');
 
   const submitForm = () =>{
     //default values for case where user doesn't
@@ -50,7 +54,9 @@ const makeQuery = () => {
   //let url_starter = "https://";
   //let fullURL = url_starter + inputs.url;
   const resource_type = "image" 
-  let query = `https://api.harvardartmuseums.org/${resource_type}?apikey=${API_KEY}`;
+  //generate a random number for page so that it can appear more random
+  const randomPage = Math.floor(Math.random() * 100);
+  let query = `https://api.harvardartmuseums.org/${resource_type}?apikey=${API_KEY}&size=99&page=${randomPage}&q=!(height:1024) AND width:>700`;
   console.log("calling makeQuery() with the following query: ",query);
   callAPI(query).catch(console.error);
 }
@@ -60,13 +66,22 @@ const callAPI = async (query) =>{
   const json = await response.json();
   console.log("printing json from callAPI", json)
   console.log("callAPI being called....")
-  console.log(json);
-
-  if (json.url == null){
+  console.log(json)
+  
+  console.log()
+  //generate random index from 0-9 here
+  const randomIdx = Math.floor(Math.random() * 100);
+  if (json.records[randomIdx].baseimageurl == null || json.records[randomIdx].technique == null){
     alert("could not handle this request.")
   }
   else{
     console.log('got it ')// this might be useful later but we dont know yet
+    const currentRecord = json.records[randomIdx]
+    setCurrentImg(currentRecord.baseimageurl)
+    console.log("technique", currentRecord.technique)
+    setCurrentTechButt(currentRecord.technique)
+    setCurrentHeightButt(currentRecord.height);
+    setCurrentWidthButt(currentRecord.width);
   }
   console.log("end of callAPI");
 }
@@ -74,7 +89,36 @@ const callAPI = async (query) =>{
   return (
    <div className='whole-page'>
       <h1>Random Art Generator...</h1>
-      
+      <APIForm onSubmit={submitForm}/>
+      {currentImg ? (
+        <div>
+          <div>
+            <button>
+              {heightButton}
+            </button>
+            
+            <button>
+             {widthButton}
+            
+            </button>
+            <button>
+              {techniqueButton}
+            </button>
+
+
+          </div>
+          <img
+            className ="screenshot"
+            src={currentImg}
+            alt="Screenshot returned"
+          />
+        </div>
+        ):
+        (
+          <div>
+            <h1>Nothing to see here..</h1>
+            </div>
+        )}
    </div>
   )
 }
