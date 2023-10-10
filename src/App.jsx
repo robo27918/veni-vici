@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import APIForm from './components/APIForm';
+import BanList from './components/BanList';
 //TODO #1- make an api call to the harvard api
 // and display the respone via a console.log
 
@@ -22,7 +23,7 @@ function App() {
   const[techniqueButton, setCurrentTechButt] = useState('')
   const [heightButton, setCurrentHeightButt] = useState('');
   const[widthButton, setCurrentWidthButt] = useState('');
-
+  const[bannedAttribList, setBannedAttribList] = useState([]);
   const submitForm = () =>{
     //default values for case where user doesn't
     //input values
@@ -45,7 +46,16 @@ function App() {
   }
 
 
+const addToBannedHeights = ()=>{
+  setBannedAttribList((bannedAttribList)=>[...bannedAttribList,heightButton]);
+}
+const addToBannedTechs= () =>{
+  setBannedAttribList((bannedAttribList)=>[...bannedAttribList,techniqueButton]);
+}
 
+const addToBannedWidths = () =>{
+  setBannedAttribList((bannedAttribList)=>[...bannedAttribList,widthButton]);
+}
 const makeQuery = () => {
   console.log("printing access key", API_KEY)
   //let wait_until = "network_idle";
@@ -56,7 +66,7 @@ const makeQuery = () => {
   const resource_type = "image" 
   //generate a random number for page so that it can appear more random
   const randomPage = Math.floor(Math.random() * 100);
-  let query = `https://api.harvardartmuseums.org/${resource_type}?apikey=${API_KEY}&size=99&page=${randomPage}&q=!(height:1024) AND width:>700`;
+  let query = `https://api.harvardartmuseums.org/${resource_type}?apikey=${API_KEY}&size=99&page=${randomPage}`;
   console.log("calling makeQuery() with the following query: ",query);
   callAPI(query).catch(console.error);
 }
@@ -93,15 +103,15 @@ const callAPI = async (query) =>{
       {currentImg ? (
         <div>
           <div>
-            <button>
+            <button onClick={addToBannedHeights}>
               {heightButton}
             </button>
             
-            <button>
+            <button onClick={addToBannedWidths}>
              {widthButton}
             
             </button>
-            <button>
+            <button onClick={addToBannedTechs}>
               {techniqueButton}
             </button>
 
@@ -119,8 +129,10 @@ const callAPI = async (query) =>{
             <h1>Nothing to see here..</h1>
             </div>
         )}
+        <br></br>
+
+        <BanList attributes={bannedAttribList}/>
    </div>
   )
 }
-
 export default App
